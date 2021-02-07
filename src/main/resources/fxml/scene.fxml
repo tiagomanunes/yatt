@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.DatePicker?>
 <HBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="net.tiagonunes.yatt.ui.MainController"
       fx:id="rootHBox" prefHeight="650.0" prefWidth="650.0" spacing="50">
@@ -11,14 +12,17 @@
             <Button text="+" onAction="#planWork" />
             <Label text="Planned" />
         </HBox>
-        <FlowPane fx:id="plannedPane" orientation="VERTICAL" vgap="2" VBox.vgrow="ALWAYS" prefWidth="200"/>
+        <FlowPane fx:id="plannedPane" orientation="VERTICAL" vgap="2" VBox.vgrow="ALWAYS" prefWidth="200" />
     </VBox>
     <VBox>
         <HBox alignment="BASELINE_LEFT" spacing="10">
-            <Button text="+" onAction="#doWork"/>
+            <Button text="+" onAction="#doWork" />
             <Label text="Done" />
         </HBox>
         <FlowPane fx:id="donePane" orientation="VERTICAL" vgap="2" VBox.vgrow="ALWAYS" />
     </VBox>
-    <Button text="Report" onAction="#openReport"/>
+    <VBox>
+        <DatePicker fx:id="datePicker"/>
+        <Button text="Report" onAction="#openReport" />
+    </VBox>
 </HBox>

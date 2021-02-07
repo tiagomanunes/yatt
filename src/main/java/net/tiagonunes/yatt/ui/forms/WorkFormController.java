@@ -93,6 +93,5 @@ public class WorkFormController {
         work.setName(name.getText());
         work.setTags(tags.getText());
         work.setCategory(category.getSelectionModel().getSelectedItem());
-        work.setDate(LocalDate.now());
     }
 }

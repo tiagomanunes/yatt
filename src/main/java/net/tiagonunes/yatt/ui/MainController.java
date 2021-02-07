@@ -10,6 +10,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
@@ -27,6 +28,7 @@ import net.tiagonunes.yatt.ui.forms.WorkFormController;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -38,20 +40,22 @@ public class MainController {
     private FlowPane plannedPane;
     @FXML
     private FlowPane donePane;
+    @FXML
+    private DatePicker datePicker;
 
     @FXML
     public void initialize() {
-        List<WorkPlanned> workPlanned = DbService.get().reloadWorkPlannedForDay();
-        workPlanned.forEach(work -> loadAndInsertWorkNode(work, plannedPane));
+        LocalDate now = LocalDate.now();
+        datePicker.setValue(now);
+        datePicker.valueProperty().addListener(observable -> loadWork(datePicker.getValue()));
+        loadWork(now);
+
 
         rootHBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.P) {
                 planWork();
             }
         });
-
-        List<WorkDone> workDone = DbService.get().reloadWorkDoneForDay();
-        workDone.forEach(work -> loadAndInsertWorkNode(work, donePane));
 
         rootHBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.D) {
@@ -62,7 +66,7 @@ public class MainController {
 
     @FXML
     private void planWork() {
-        LocalTime earliestAvailableTime = DbService.get().getEarliestAvailableTime();
+        LocalTime earliestAvailableTime = DbService.get().getEarliestAvailableTime(datePicker.getValue());
         List<Category> categories = DbService.get().reloadCategories();
 
         WorkFormController form;
@@ -86,6 +90,8 @@ public class MainController {
         if (buttonType != ButtonType.CANCEL) {
             WorkPlanned work = new WorkPlanned();
             form.fillWork(work);
+            work.setDate(datePicker.getValue());
+
             try {
                 DbService.get().insertWorkPlanned(work);
                 Platform.runLater(() -> loadAndInsertWorkNode(work, plannedPane));
@@ -125,6 +131,8 @@ public class MainController {
         if (buttonType != ButtonType.CANCEL) {
             WorkDone work = new WorkDone();
             form.fillWork(work);
+            work.setDate(datePicker.getValue());
+
             try {
                 DbService.get().insertWorkDone(work);
                 Platform.runLater(() -> loadAndInsertWorkNode(work, donePane));
@@ -171,6 +179,17 @@ public class MainController {
         dialog.getDialogPane().setContent(form.getRoot());
 
         return dialog;
+    }
+
+    private void loadWork(LocalDate date) {
+        plannedPane.getChildren().clear();
+        donePane.getChildren().clear();
+
+        List<WorkPlanned> workPlanned = DbService.get().reloadWorkPlannedForDay(date);
+        workPlanned.forEach(work -> loadAndInsertWorkNode(work, plannedPane));
+
+        List<WorkDone> workDone = DbService.get().reloadWorkDoneForDay(date);
+        workDone.forEach(work -> loadAndInsertWorkNode(work, donePane));
     }
 
     private void loadAndInsertWorkNode(Work work, FlowPane pane) {

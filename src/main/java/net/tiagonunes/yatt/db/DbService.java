@@ -46,7 +46,7 @@ public class DbService {
         return StaticHolder.INSTANCE;
     }
 
-    private boolean isTest = false;
+    private boolean isTest = true;
 
     private ConnectionSource connectionSource;
     private Dao<Category, Long> categoryDao;
@@ -75,10 +75,10 @@ public class DbService {
         connectionSource.close();
     }
 
-    public List<WorkPlanned> reloadWorkPlannedForDay() {
+    public List<WorkPlanned> reloadWorkPlannedForDay(LocalDate date) {
         try {
             QueryBuilder<WorkPlanned, Long> queryBuilder = workPlannedDao.queryBuilder();
-            queryBuilder.orderBy("startTime", true).where().eq("date", LocalDate.now());
+            queryBuilder.orderBy("startTime", true).where().eq("date", date);
 
             PreparedQuery<WorkPlanned> preparedQuery = queryBuilder.prepare();
             return workPlannedDao.query(preparedQuery);
@@ -92,10 +92,10 @@ public class DbService {
         workPlannedDao.create(work);
     }
 
-    public List<WorkDone> reloadWorkDoneForDay() {
+    public List<WorkDone> reloadWorkDoneForDay(LocalDate date) {
         try {
             QueryBuilder<WorkDone, Long> queryBuilder = workDoneDao.queryBuilder();
-            queryBuilder.orderBy("startTime", true).where().eq("date", LocalDate.now());
+            queryBuilder.orderBy("startTime", true).where().eq("date", date);
 
             PreparedQuery<WorkDone> preparedQuery = queryBuilder.prepare();
             return workDoneDao.query(preparedQuery);
@@ -122,10 +122,10 @@ public class DbService {
         categoryDao.create(category);
     }
 
-    public LocalTime getEarliestAvailableTime() {
+    public LocalTime getEarliestAvailableTime(LocalDate date) {
         try {
             QueryBuilder<WorkPlanned, Long> queryBuilder = workPlannedDao.queryBuilder();
-            queryBuilder.orderBy("startTime", false).where().eq("date", LocalDate.now());
+            queryBuilder.orderBy("startTime", false).where().eq("date", date);
 
             PreparedQuery<WorkPlanned> preparedQuery = queryBuilder.prepare();
             WorkPlanned workPlanned = workPlannedDao.queryForFirst(preparedQuery);
