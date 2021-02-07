@@ -56,11 +56,7 @@ public class MainController {
         rootHBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.P) {
                 planWork();
-            }
-        });
-
-        rootHBox.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.D) {
+            } else if (keyEvent.getCode() == KeyCode.D) {
                 doWork();
             }
         });
