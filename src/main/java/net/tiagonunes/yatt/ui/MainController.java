@@ -1,9 +1,9 @@
 package net.tiagonunes.yatt.ui;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
@@ -12,9 +12,11 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import net.tiagonunes.yatt.db.DbService;
@@ -153,17 +155,45 @@ public class MainController {
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
         chart.setTitle("Time per category (planned vs actual)");
         chart.setCategoryGap(40);
+        chart.setAnimated(false);
 
-        ObservableList<XYChart.Series<String, Number>> chartData = Report.getCategorySeries();
-        chart.setData(chartData);
+        LocalDate lastWeek = LocalDate.now().minusDays(7);
+        LocalDate today = LocalDate.now();
+
+        loadReportData(chart, lastWeek, today);
+
+        DatePicker datePickerFrom = new DatePicker(lastWeek);
+        DatePicker datePickerTo = new DatePicker(today);
+
+        datePickerFrom.valueProperty().addListener(o -> loadReportData(chart, datePickerFrom.getValue(), datePickerTo.getValue()));
+        datePickerTo.valueProperty().addListener(o -> loadReportData(chart, datePickerFrom.getValue(), datePickerTo.getValue()));
+
+        HBox hBox = new HBox(new Label("From"), datePickerFrom, new Label("To"), datePickerTo);
+        hBox.setAlignment(Pos.BASELINE_RIGHT);
+        hBox.setSpacing(10);
+
+        VBox vBox = new VBox(hBox, chart);
+        vBox.setSpacing(20);
 
         Stage stage = new Stage();
         stage.initOwner(rootHBox.getScene().getWindow());
         stage.initModality(Modality.APPLICATION_MODAL);
-        Scene scene = new Scene(chart, 1200, 400);
+        Scene scene = new Scene(vBox, 1200, 400);
         stage.setScene(scene);
         stage.setTitle("Report");
         stage.show();
+    }
+
+    private void loadReportData(BarChart<String, Number> chart, LocalDate from, LocalDate to) {
+        if (from.isAfter(to)) {
+            return;
+        }
+
+        List<XYChart.Series<String, Number>> chartData = Report.getCategorySeries(from, to);
+        Platform.runLater(() -> {
+            chart.getData().clear();
+            chart.getData().setAll(chartData);
+        });
     }
 
     private WorkFormController getWorkFormController() throws IOException {

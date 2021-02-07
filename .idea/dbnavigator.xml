@@ -39,6 +39,7 @@ from
     sqlite_sequence ss;
 
 select * from work_planned;
+select * from work_done;
 
 update work_planned set duration = 60 where duration = 1;
 update work_planned set duration = 30 where id = 3;
@@ -71,6 +72,7 @@ delete from category where id > 9;]]></console>
     <filter-actions connection-id="4a0e989e-c826-4320-8245-ebf1fd578bcd" dataset="main.work_planned" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="4a0e989e-c826-4320-8245-ebf1fd578bcd" dataset="main.sqlite_sequence" active-filter-id="" />
     <filter-actions connection-id="4a0e989e-c826-4320-8245-ebf1fd578bcd" dataset="main.category" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="4a0e989e-c826-4320-8245-ebf1fd578bcd" dataset="main.work_done" active-filter-id="" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers>

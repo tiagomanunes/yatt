@@ -88,6 +88,19 @@ public class DbService {
         }
     }
 
+    public List<WorkPlanned> getWorkPlannedForRange(LocalDate dateStart, LocalDate dateEnd) {
+        try {
+            QueryBuilder<WorkPlanned, Long> queryBuilder = workPlannedDao.queryBuilder();
+            queryBuilder.where().ge("date", dateStart).and().le("date", dateEnd);
+
+            PreparedQuery<WorkPlanned> preparedQuery = queryBuilder.prepare();
+            return workPlannedDao.query(preparedQuery);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
     public void insertWorkPlanned(WorkPlanned work) throws SQLException {
         workPlannedDao.create(work);
     }
@@ -96,6 +109,19 @@ public class DbService {
         try {
             QueryBuilder<WorkDone, Long> queryBuilder = workDoneDao.queryBuilder();
             queryBuilder.orderBy("startTime", true).where().eq("date", date);
+
+            PreparedQuery<WorkDone> preparedQuery = queryBuilder.prepare();
+            return workDoneDao.query(preparedQuery);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    public List<WorkDone> getWorkDoneForRange(LocalDate dateStart, LocalDate dateEnd) {
+        try {
+            QueryBuilder<WorkDone, Long> queryBuilder = workDoneDao.queryBuilder();
+            queryBuilder.where().ge("date", dateStart).and().le("date", dateEnd);
 
             PreparedQuery<WorkDone> preparedQuery = queryBuilder.prepare();
             return workDoneDao.query(preparedQuery);
