@@ -2,9 +2,11 @@
 plugins {
     id 'java'
     id 'application'
+    id "com.github.johnrengelman.shadow" version "6.1.0"
     // bug in javafx plugin, if you run into trouble:
     // https://stackoverflow.com/questions/63997525/task-run-causes-org-joor-reflectexception-java-lang-nosuchfieldexception-ja
-    id 'org.openjfx.javafxplugin' version '0.0.9'
+    // disabling plugin for now, back to java 8
+    //id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 group 'net.tiagonunes'
@@ -30,7 +32,9 @@ test {
 
 mainClassName = 'net.tiagonunes.yatt.Main'
 
-javafx {
-    version = "15.0.1"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
-}
+// disabling plugin for now, back to java 8
+//javafx {
+//    version = "15.0.1"
+//    modules = [ 'javafx.controls', 'javafx.fxml' ]
+//}
+

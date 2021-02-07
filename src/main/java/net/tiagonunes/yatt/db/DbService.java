@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class DbService {
         return StaticHolder.INSTANCE;
     }
 
-    private boolean isTest = true;
+    private boolean isTest = false;
 
     private ConnectionSource connectionSource;
     private Dao<Category, Long> categoryDao;
@@ -131,7 +132,10 @@ public class DbService {
             return workPlanned.getStartTime().plusMinutes(workPlanned.getDuration());
         } catch (SQLException e) {
             e.printStackTrace();
-            return LocalTime.of(8,0);
+            return LocalTime.of(8, 0);
+        } catch (NullPointerException e) {
+            // no work planned yet, defaulting to 8AM
+            return LocalTime.of(8, 0);
         }
     }
 
@@ -150,6 +154,32 @@ public class DbService {
         categoryDao = DaoManager.createDao(connectionSource, Category.class);
         workPlannedDao = DaoManager.createDao(connectionSource, WorkPlanned.class);
         workDoneDao = DaoManager.createDao(connectionSource, WorkDone.class);
+
+        createDefaultCategories();
+    }
+
+    private void createDefaultCategories() throws SQLException {
+        if (categoryDao.queryForAll().isEmpty()) {
+            Category c1 = new Category();
+            c1.setName("Team mgmt.");
+            Category c2 = new Category();
+            c2.setName("Project mgmt.");
+            Category c3 = new Category();
+            c3.setName("Hiring");
+            Category c4 = new Category();
+            c4.setName("Support");
+            Category c5 = new Category();
+            c5.setName("New joiner");
+            Category c6 = new Category();
+            c6.setName("Code review");
+            Category c7 = new Category();
+            c7.setName("Release");
+            Category c8 = new Category();
+            c8.setName("Training");
+            Category c9 = new Category();
+            c9.setName("Break");
+            categoryDao.create(Arrays.asList(c1, c2, c3, c4, c5, c6, c7, c8, c9));
+        }
     }
 
     private void backup() {
