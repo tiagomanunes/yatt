@@ -1,0 +1,36 @@
+
+plugins {
+    id 'java'
+    id 'application'
+    // bug in javafx plugin, if you run into trouble:
+    // https://stackoverflow.com/questions/63997525/task-run-causes-org-joor-reflectexception-java-lang-nosuchfieldexception-ja
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+group 'net.tiagonunes'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.xerial:sqlite-jdbc:3.34.0'
+    implementation 'javax.persistence:javax.persistence-api:2.2'
+    implementation 'com.j256.ormlite:ormlite-core:5.3'
+    implementation 'com.j256.ormlite:ormlite-jdbc:5.3'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+mainClassName = 'net.tiagonunes.yatt.Main'
+
+javafx {
+    version = "15.0.1"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}

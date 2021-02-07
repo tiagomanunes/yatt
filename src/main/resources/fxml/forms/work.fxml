@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="net.tiagonunes.yatt.ui.forms.WorkFormController"
+      fx:id="rootVBox" spacing="10">
+    <HBox alignment="BASELINE_LEFT" spacing="5" VBox.vgrow="NEVER">
+        <Label text="Start time" />
+        <TextField fx:id="startTime" prefWidth="50" alignment="BASELINE_RIGHT" editable="false" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label text="Duration (minutes)" />
+        <TextField fx:id="duration"  prefWidth="40" alignment="BASELINE_RIGHT" editable="false" />
+
+        <!--<VBox>
+            <Button fx:id="increaseDuration" text="+" maxHeight="5" prefWidth="15">
+                <font>
+                    <Font size="8"/>
+                </font>
+                <padding>
+                    <Insets right="3" left="3"/>
+                </padding>
+            </Button>
+            <Button fx:id="decreaseDuration" text="-" maxHeight="5" prefWidth="15" >
+                <font>
+                    <Font size="8"/>
+                </font>
+                <padding>
+                    <Insets right="3" left="3"/>
+                </padding>
+            </Button>
+        </VBox>-->
+    </HBox>
+    <HBox alignment="BASELINE_LEFT" spacing="5">
+        <Label text="Name" />
+        <TextField fx:id="name" prefWidth="200" HBox.hgrow="ALWAYS" />
+    </HBox>
+    <HBox alignment="BASELINE_LEFT" spacing="5">
+        <Label text="Tags" />
+        <TextField fx:id="tags" prefWidth="200" HBox.hgrow="ALWAYS" />
+    </HBox>
+    <HBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="category" promptText="Category..." />
+    </HBox>
+</VBox>
