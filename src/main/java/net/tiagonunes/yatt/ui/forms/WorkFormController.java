@@ -6,6 +6,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -14,12 +15,20 @@ import javafx.scene.layout.VBox;
 import net.tiagonunes.yatt.model.Category;
 import net.tiagonunes.yatt.model.Work;
 
-import java.time.LocalDate;
+import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class WorkFormController {
+
+    public static WorkFormController getController() throws IOException {
+        FXMLLoader loader = new FXMLLoader(WorkFormController.class.getResource("/fxml/forms/work.fxml"));
+        loader.load();
+
+        return loader.getController();
+    }
+
     @FXML
     private VBox rootVBox;
     @FXML
@@ -77,6 +86,22 @@ public class WorkFormController {
 
     public void setCategories(List<Category> categories) {
         this.categories.addAll(categories);
+    }
+
+    public void setDuration(int duration) {
+        durationProperty.set(duration);
+    }
+
+    public void setName(String name) {
+        this.name.setText(name);
+    }
+
+    public void setTags(String tags) {
+        this.tags.setText(tags);
+    }
+
+    public void setCategory(Category category) {
+        this.category.getSelectionModel().select(category);
     }
 
     public BooleanProperty isValidProperty() {

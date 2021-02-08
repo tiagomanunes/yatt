@@ -69,7 +69,7 @@ public class MainController {
 
         WorkFormController form;
         try {
-            form = getWorkFormController();
+            form = WorkFormController.getController();
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -111,7 +111,7 @@ public class MainController {
 
         WorkFormController form;
         try {
-            form = getWorkFormController();
+            form = WorkFormController.getController();
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -190,13 +190,6 @@ public class MainController {
             chart.getData().clear();
             chart.getData().setAll(chartData);
         });
-    }
-
-    private WorkFormController getWorkFormController() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainController.class.getResource("/fxml/forms/work.fxml"));
-        loader.load();
-
-        return loader.getController();
     }
 
     private Dialog<ButtonType> getButtonTypeDialog(WorkFormController form, String title) {

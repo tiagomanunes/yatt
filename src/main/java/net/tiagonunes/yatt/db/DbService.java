@@ -11,6 +11,7 @@ import com.j256.ormlite.table.TableUtils;
 import net.tiagonunes.yatt.db.persisters.LocalDatePersister;
 import net.tiagonunes.yatt.db.persisters.LocalTimePersister;
 import net.tiagonunes.yatt.model.Category;
+import net.tiagonunes.yatt.model.Work;
 import net.tiagonunes.yatt.model.WorkDone;
 import net.tiagonunes.yatt.model.WorkPlanned;
 
@@ -133,6 +134,15 @@ public class DbService {
 
     public void insertWorkDone(WorkDone work) throws SQLException {
         workDoneDao.create(work);
+    }
+
+    public <T extends Work> void updateWork(T work) throws SQLException {
+        // TODO there's gotta be a better way to do this
+        if (work instanceof WorkPlanned) {
+            workPlannedDao.update((WorkPlanned) work);
+        } else if (work instanceof WorkDone) {
+            workDoneDao.update((WorkDone) work);
+        }
     }
 
     public List<Category> reloadCategories() {
