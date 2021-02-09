@@ -6,7 +6,7 @@
 <?import javafx.scene.control.DatePicker?>
 <HBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="net.tiagonunes.yatt.ui.MainController"
-      fx:id="rootHBox" prefHeight="650.0" prefWidth="650.0" spacing="50">
+      fx:id="rootHBox" prefHeight="800.0" prefWidth="750.0" spacing="50">
     <VBox>
         <HBox alignment="BASELINE_LEFT" spacing="10">
             <Button text="+" onAction="#planWork" />

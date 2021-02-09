@@ -41,6 +41,7 @@
     </HBox>
     <HBox>
         <Region HBox.hgrow="ALWAYS" />
-        <ComboBox fx:id="category" promptText="Category..." />
+        <ComboBox fx:id="categoryComboBox" promptText="Category..." />
+        <Button text="+" onAction="#addCategory" focusTraversable="false" />
     </HBox>
 </VBox>

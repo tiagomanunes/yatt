@@ -7,11 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
+import net.tiagonunes.yatt.db.DbService;
 import net.tiagonunes.yatt.model.Category;
 import net.tiagonunes.yatt.model.Work;
 
@@ -40,7 +41,7 @@ public class WorkFormController {
     @FXML
     private TextField tags;
     @FXML
-    private ComboBox<Category> category;
+    private ComboBox<Category> categoryComboBox;
 
     private final ObjectProperty<LocalTime> startTimeProperty = new SimpleObjectProperty<>(LocalTime.of(8, 0));
     private final IntegerProperty durationProperty = new SimpleIntegerProperty(60);
@@ -72,12 +73,12 @@ public class WorkFormController {
             }
         });
 
-        category.setItems(categories.sorted());
+        categoryComboBox.setItems(categories.sorted());
 
         isValidProperty.bind(startTime.textProperty().isNotEmpty().and(
                 duration.textProperty().isNotEmpty()).and(
                         name.textProperty().isNotEmpty()).and(
-                                category.getSelectionModel().selectedItemProperty().isNotNull()));
+                                categoryComboBox.getSelectionModel().selectedItemProperty().isNotNull()));
     }
 
     public void setStartTime(LocalTime startTime) {
@@ -85,7 +86,7 @@ public class WorkFormController {
     }
 
     public void setCategories(List<Category> categories) {
-        this.categories.addAll(categories);
+        this.categories.setAll(categories);
     }
 
     public void setDuration(int duration) {
@@ -101,7 +102,7 @@ public class WorkFormController {
     }
 
     public void setCategory(Category category) {
-        this.category.getSelectionModel().select(category);
+        this.categoryComboBox.getSelectionModel().select(category);
     }
 
     public BooleanProperty isValidProperty() {
@@ -117,6 +118,39 @@ public class WorkFormController {
         work.setDuration(durationProperty.get());
         work.setName(name.getText());
         work.setTags(tags.getText());
-        work.setCategory(category.getSelectionModel().getSelectedItem());
+        work.setCategory(categoryComboBox.getSelectionModel().getSelectedItem());
+    }
+
+    public void addCategory() {
+        TextField text = new TextField();
+        text.setPromptText("Category name...");
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Add category");
+        dialog.getDialogPane().setContent(text);
+        dialog.getDialogPane().setPadding(new Insets(5));
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.getDialogPane().lookupButton(ButtonType.OK).disableProperty().bind(text.textProperty().isEmpty());
+
+        ButtonType buttonType = dialog.showAndWait().orElse(ButtonType.CANCEL);
+
+        if (buttonType != ButtonType.CANCEL) {
+            Category category = new Category();
+            category.setName(text.getText());
+
+            try {
+                DbService.get().insertCategory(category);
+                Category previousSelection = categoryComboBox.getSelectionModel().getSelectedItem();
+                categoryComboBox.getSelectionModel().clearSelection(); // not sure why this is needed, but bugs without it
+                Platform.runLater(() -> {
+                    setCategories(DbService.get().reloadCategories());
+                    if (previousSelection != null) {
+                        categoryComboBox.getSelectionModel().select(previousSelection);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
