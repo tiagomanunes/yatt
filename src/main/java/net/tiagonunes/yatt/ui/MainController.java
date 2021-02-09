@@ -146,7 +146,7 @@ public class MainController {
         xAxis.setLabel("Category");
 
         NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Time (minutes)");
+        yAxis.setLabel("Time (hours)");
 
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
         chart.setTitle("Time per category (planned vs actual)");

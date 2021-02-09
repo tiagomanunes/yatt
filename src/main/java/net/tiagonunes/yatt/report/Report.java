@@ -25,7 +25,7 @@ public class Report {
                 .collect(groupingBy(WorkPlanned::getCategory, summingInt(WorkPlanned::getDuration)));
         workPlannedPerCategory.entrySet().stream()
                 .sorted(Comparator.comparing(o -> o.getKey().getName()))
-                .map(e -> new XYChart.Data<>(e.getKey().getName(), (Number) e.getValue()))
+                .map(e -> new XYChart.Data<>(e.getKey().getName(), (Number) (e.getValue() / 60.0)))
                 .forEach(d -> plannedSeries.getData().add(d));
 
         XYChart.Series<String, Number> doneSeries = new XYChart.Series<>();
@@ -35,7 +35,7 @@ public class Report {
                 .collect(groupingBy(WorkDone::getCategory, summingInt(WorkDone::getDuration)));
         workDonePerCategory.entrySet().stream()
                 .sorted(Comparator.comparing(o -> o.getKey().getName()))
-                .map(e -> new XYChart.Data<>(e.getKey().getName(), (Number) e.getValue()))
+                .map(e -> new XYChart.Data<>(e.getKey().getName(), (Number) (e.getValue() / 60.0)))
                 .forEach(d -> doneSeries.getData().add(d));
 
         List<XYChart.Series<String, Number>> data = new ArrayList<>();
