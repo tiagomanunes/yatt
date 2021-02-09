@@ -20,7 +20,7 @@ public class Report {
     public static List<XYChart.Series<String, Number>> getCategorySeries(LocalDate from, LocalDate to) {
         XYChart.Series<String, Number> plannedSeries = new XYChart.Series<>();
         plannedSeries.setName("Planned");
-        List<WorkPlanned> workPlanned = DbService.get().getWorkPlannedForRange(from, to);
+        List<WorkPlanned> workPlanned = DbService.get().getWorkForRange(WorkPlanned.class, from, to);
         Map<Category, Integer> workPlannedPerCategory = workPlanned.stream()
                 .collect(groupingBy(WorkPlanned::getCategory, summingInt(WorkPlanned::getDuration)));
         workPlannedPerCategory.entrySet().stream()
@@ -30,7 +30,7 @@ public class Report {
 
         XYChart.Series<String, Number> doneSeries = new XYChart.Series<>();
         doneSeries.setName("Actual");
-        List<WorkDone> workDone = DbService.get().getWorkDoneForRange(from, to);
+        List<WorkDone> workDone = DbService.get().getWorkForRange(WorkDone.class, from, to);
         Map<Category, Integer> workDonePerCategory = workDone.stream()
                 .collect(groupingBy(WorkDone::getCategory, summingInt(WorkDone::getDuration)));
         workDonePerCategory.entrySet().stream()

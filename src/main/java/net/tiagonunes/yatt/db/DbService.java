@@ -24,9 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class DbService {
 
@@ -54,6 +52,7 @@ public class DbService {
     private Dao<WorkPlanned, Long> workPlannedDao;
     private Dao<WorkDone, Long> workDoneDao;
 
+    private final Map<Class<?>, Dao<?, Long>> workDaos = new HashMap<>();
 
     public void init() throws SQLException {
         ensureDirs();
@@ -76,56 +75,42 @@ public class DbService {
         connectionSource.close();
     }
 
-    public List<WorkPlanned> reloadWorkPlannedForDay(LocalDate date) {
-        try {
-            QueryBuilder<WorkPlanned, Long> queryBuilder = workPlannedDao.queryBuilder();
-            queryBuilder.orderBy("startTime", true).where().eq("date", date);
-
-            PreparedQuery<WorkPlanned> preparedQuery = queryBuilder.prepare();
-            return workPlannedDao.query(preparedQuery);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
-    public List<WorkPlanned> getWorkPlannedForRange(LocalDate dateStart, LocalDate dateEnd) {
-        try {
-            QueryBuilder<WorkPlanned, Long> queryBuilder = workPlannedDao.queryBuilder();
-            queryBuilder.where().ge("date", dateStart).and().le("date", dateEnd);
-
-            PreparedQuery<WorkPlanned> preparedQuery = queryBuilder.prepare();
-            return workPlannedDao.query(preparedQuery);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
     public void insertWorkPlanned(WorkPlanned work) throws SQLException {
         workPlannedDao.create(work);
     }
 
-    public List<WorkDone> reloadWorkDoneForDay(LocalDate date) {
+    public <T extends Work> List<T> reloadWorkForDay(Class<T> clazz, LocalDate date) {
+        Dao<T, Long> dao = getWorkDao(clazz);
+
+        if (dao == null) {
+            return Collections.emptyList();
+        }
+
         try {
-            QueryBuilder<WorkDone, Long> queryBuilder = workDoneDao.queryBuilder();
+            QueryBuilder<T, Long> queryBuilder = dao.queryBuilder();
             queryBuilder.orderBy("startTime", true).where().eq("date", date);
 
-            PreparedQuery<WorkDone> preparedQuery = queryBuilder.prepare();
-            return workDoneDao.query(preparedQuery);
+            PreparedQuery<T> preparedQuery = queryBuilder.prepare();
+            return dao.query(preparedQuery);
         } catch (SQLException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
     }
 
-    public List<WorkDone> getWorkDoneForRange(LocalDate dateStart, LocalDate dateEnd) {
+    public <T extends Work> List<T> getWorkForRange(Class<T> clazz, LocalDate dateStart, LocalDate dateEnd) {
+        Dao<T, Long> dao = getWorkDao(clazz);
+
+        if (dao == null) {
+            return Collections.emptyList();
+        }
+
         try {
-            QueryBuilder<WorkDone, Long> queryBuilder = workDoneDao.queryBuilder();
+            QueryBuilder<T, Long> queryBuilder = dao.queryBuilder();
             queryBuilder.where().ge("date", dateStart).and().le("date", dateEnd);
 
-            PreparedQuery<WorkDone> preparedQuery = queryBuilder.prepare();
-            return workDoneDao.query(preparedQuery);
+            PreparedQuery<T> preparedQuery = queryBuilder.prepare();
+            return dao.query(preparedQuery);
         } catch (SQLException e) {
             e.printStackTrace();
             return Collections.emptyList();
@@ -179,6 +164,18 @@ public class DbService {
         this.isTest = isTest;
     }
 
+    private <T extends Work> Dao<T, Long> getWorkDao(Class<T> clazz) {
+        Dao<?, Long> dao = workDaos.get(clazz);
+
+        if (dao != null) {
+            @SuppressWarnings("unchecked")
+            Dao<T, Long> castDao = (Dao<T, Long>) dao;
+            return castDao;
+        }
+
+        return null;
+    }
+
     private void setup() throws SQLException {
         DataPersisterManager.registerDataPersisters(LocalDatePersister.getSingleton());
         DataPersisterManager.registerDataPersisters(LocalTimePersister.getSingleton());
@@ -190,6 +187,9 @@ public class DbService {
         categoryDao = DaoManager.createDao(connectionSource, Category.class);
         workPlannedDao = DaoManager.createDao(connectionSource, WorkPlanned.class);
         workDoneDao = DaoManager.createDao(connectionSource, WorkDone.class);
+
+        workDaos.put(WorkPlanned.class, workPlannedDao);
+        workDaos.put(WorkDone.class, workDoneDao);
 
         createDefaultCategories();
     }

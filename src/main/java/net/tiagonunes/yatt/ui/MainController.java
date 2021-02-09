@@ -204,10 +204,10 @@ public class MainController {
         plannedPane.getChildren().clear();
         donePane.getChildren().clear();
 
-        List<WorkPlanned> workPlanned = DbService.get().reloadWorkPlannedForDay(date);
+        List<WorkPlanned> workPlanned = DbService.get().reloadWorkForDay(WorkPlanned.class, date);
         workPlanned.forEach(work -> loadAndInsertWorkNode(work, plannedPane));
 
-        List<WorkDone> workDone = DbService.get().reloadWorkDoneForDay(date);
+        List<WorkDone> workDone = DbService.get().reloadWorkForDay(WorkDone.class, date);
         workDone.forEach(work -> loadAndInsertWorkNode(work, donePane));
     }
 
