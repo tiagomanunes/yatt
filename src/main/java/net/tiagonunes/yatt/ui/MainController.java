@@ -9,10 +9,7 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -147,6 +144,7 @@ public class MainController {
 
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Time (hours)");
+        yAxis.setMinorTickCount(0);
 
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
         chart.setTitle("Time per category (planned vs actual)");
@@ -189,6 +187,15 @@ public class MainController {
         Platform.runLater(() -> {
             chart.getData().clear();
             chart.getData().setAll(chartData);
+
+            for (XYChart.Series<String, Number> entry : chart.getData()) {
+                for (XYChart.Data<String, Number> datum : entry.getData()) {
+                    if (datum != null && datum.getExtraValue() != null) {
+                        Tooltip t = new Tooltip(datum.getExtraValue().toString());
+                        Tooltip.install(datum.getNode(), t);
+                    }
+                }
+            }
         });
     }
 
