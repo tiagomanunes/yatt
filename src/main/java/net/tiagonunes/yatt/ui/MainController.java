@@ -1,5 +1,7 @@
 package net.tiagonunes.yatt.ui;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,9 +15,11 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import net.tiagonunes.yatt.db.DbService;
 import net.tiagonunes.yatt.model.Category;
 import net.tiagonunes.yatt.model.Work;
@@ -26,7 +30,9 @@ import net.tiagonunes.yatt.ui.controls.WorkController;
 import net.tiagonunes.yatt.ui.forms.WorkFormController;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -151,7 +157,7 @@ public class MainController {
         chart.setCategoryGap(40);
         chart.setAnimated(false);
 
-        LocalDate lastWeek = LocalDate.now().minusDays(7);
+        LocalDate lastWeek = LocalDate.now().with(DayOfWeek.MONDAY);
         LocalDate today = LocalDate.now();
 
         loadReportData(chart, lastWeek, today);
@@ -167,11 +173,12 @@ public class MainController {
         hBox.setSpacing(10);
 
         VBox vBox = new VBox(hBox, chart);
+        VBox.setVgrow(chart, Priority.ALWAYS);
         vBox.setSpacing(20);
 
         Stage stage = new Stage();
         stage.initOwner(rootHBox.getScene().getWindow());
-        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initModality(Modality.NONE);
         Scene scene = new Scene(vBox, 1200, 400);
         stage.setScene(scene);
         stage.setTitle("Report");
@@ -192,11 +199,37 @@ public class MainController {
                 for (XYChart.Data<String, Number> datum : entry.getData()) {
                     if (datum != null && datum.getExtraValue() != null) {
                         Tooltip t = new Tooltip(datum.getExtraValue().toString());
+                        hackTooltipTiming(t);
                         Tooltip.install(datum.getNode(), t);
                     }
                 }
             }
         });
+    }
+
+    // https://stackoverflow.com/questions/26854301/how-to-control-the-javafx-tooltips-delay
+    public void hackTooltipTiming(Tooltip tooltip) {
+        try {
+            Field fieldBehavior = tooltip.getClass().getDeclaredField("BEHAVIOR");
+            fieldBehavior.setAccessible(true);
+            Object objBehavior = fieldBehavior.get(tooltip);
+
+            Field activationTimer = objBehavior.getClass().getDeclaredField("activationTimer");
+            activationTimer.setAccessible(true);
+            Timeline activationTimeline = (Timeline) activationTimer.get(objBehavior);
+
+            activationTimeline.getKeyFrames().clear();
+            activationTimeline.getKeyFrames().add(new KeyFrame(new Duration(250)));
+
+            Field hideTimer = objBehavior.getClass().getDeclaredField("hideTimer");
+            hideTimer.setAccessible(true);
+            Timeline hideTimeline = (Timeline) hideTimer.get(objBehavior);
+
+            hideTimeline.getKeyFrames().clear();
+            hideTimeline.getKeyFrames().add(new KeyFrame(new Duration(20_000)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private Dialog<ButtonType> getButtonTypeDialog(WorkFormController form, String title) {
